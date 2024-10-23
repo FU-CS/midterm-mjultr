@@ -9,47 +9,67 @@ import java.util.Queue;
 public class CompleteBinaryTree {
 
     private Node root;
+    private int[]arr;
+    private int cap;
+    private int track;
 
     public CompleteBinaryTree() {
-        this.root = null;
+        this.root  = null;
+        this.cap = 10;
+        this.arr   = new int[cap];
+        this.track = 0;
+
     }
 
-    public CompleteBinaryTree(int data) {
-        this.root = new Node(data);
+    public int getRoot() {
+        return root.data;
     }
 
-    public Node getRoot() {
-        return root;
-    }
-
-    public void insert(int data) {
+    public void insert(int element) {
         if (root == null) {
-            root = new Node(data);
+            root = new Node(element);
+            arr[track] = element;
             return;
         }
 
         Node temp = root;
-        Queue<Node> queue = new LinkedList<>();
-        queue.add(temp);
 
-        while (!queue.isEmpty()) {
-            temp = queue.poll();
 
-            if (temp.left == null) {
-                temp.left = new Node(data);
-                break;
-            } else {
-                queue.add(temp.left);
-            }
-
-            if (temp.right == null) {
-                temp.right = new Node(data);
-                break;
-            } else {
-                queue.add(temp.right);
+        if (track >= cap){
+            cap = cap * 2;
+            int []history = arr;
+            this.arr = new int[cap];
+            int i = 0;
+            while (i < track) {
+                this.insert(history[i]);
+                i = i + 1;
             }
         }
-    }
+        this.insertHelper(temp, element);
+
+        }
+
+    public void insertHelper(Node temp, int element){
+
+            if (temp.left == null) {
+                temp.left = new Node(element);
+                arr[track*2+1] = element;
+            }
+
+            else if (temp.right == null){
+                temp.right = new Node(element);
+                arr[track*2+2] = element;
+                track+=1;
+            }
+            else{
+                this.insertHelper(temp.left, element);
+                this.insertHelper(temp.right, element);
+                ;
+
+            }
+            return;
+        }
+    
     
     public void delete(int data) {
         if (root == null) {
@@ -108,26 +128,27 @@ public class CompleteBinaryTree {
 
 
     public String toString() {
-        return toString(root);
-    }
-
-    private String toString(Node root) {
+        int i = 0;
         String str = "";
-        Queue<Node> queue = new LinkedList<>();
-        queue.add(root);
-
-        while (!queue.isEmpty()) {
-            Node temp = queue.poll();
-            str += temp.data + " ";
-
-            if (temp.left != null) 
-                queue.add(temp.left);
-
-            if (temp.right != null) 
-                queue.add(temp.right);
+        while (i <=track + 1){
+            str = str + arr[i] + " ";
+            i+=1;
         }
         return str;
+
     }
+
+    // private String toString(Node root) {
+    //     String str = "";
+    //     if (root == null){
+    //         return "";
+    //     }
+    //     while (root != null) {
+    //         str = str+ root.data + " "+ this.toString(root.left) + toString(root.right);
+    //     }
+    //     return str;
+    // }
+
 
     public static void main(String[] args) {
         CompleteBinaryTree tree = new CompleteBinaryTree();
@@ -136,7 +157,9 @@ public class CompleteBinaryTree {
         tree.insert(3);
         tree.insert(4);
         tree.insert(5);
-
+        
+        System.out.println(tree.getRoot());
+        System.out.println(tree.root.right.data);
         System.out.println(tree.toString());
     }
 }
